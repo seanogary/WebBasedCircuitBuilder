@@ -20,10 +20,8 @@ circuitGraph.addVertex(vertex2);
 
 circuitGraph.addEdge(vertex1, vertex2);
 
-for (let el of circuitGraph.vertices) {
-    renderer.drawVertex(el);
-}
+window.addEventListener('viewportchange', () => {
+    renderer.renderGraph(circuitGraph);
+});
 
-for (let el of circuitGraph.edges) {
-    renderer.drawEdge(el[0], el[1]);
-}
+renderer.renderGraph(circuitGraph);

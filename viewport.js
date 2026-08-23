@@ -4,9 +4,28 @@ export const viewport = {
     canvasContext: null,
     resizeNow: null,
     resize: null,
+	isPanning: false,
+	mouseDisplacement: {
+		x: 0,
+		y: 0,
+	},
+	prevMousePos: null,
+    camera: {
+        x: 0,
+        y: 0,
+    },
+    zoomTransform: {
+		scale: 1, 
+		translation: {
+			x: 0,
+			y: 0,
+		}, 
+	},
+	
 }
 
 export const initResize = () => {
+	const viewportChange = new CustomEvent("viewportchange");
 	const canvas = document.getElementById('app-canvas');
 	const ctx = canvas.getContext('2d');
     viewport.canvasContext = ctx;
@@ -29,6 +48,7 @@ export const initResize = () => {
 			viewport.height = window.innerHeight;
 			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 			ctx.clearRect(0, 0, cssWidth, cssHeight);
+			window.dispatchEvent(viewportChange);
 		}
 	}
 
@@ -44,6 +64,51 @@ export const initResize = () => {
 	window.addEventListener('resize', scheduleResize);
 	window.addEventListener('orientationchange', scheduleResize);
 	document.addEventListener('fullscreenchange', scheduleResize);
+
+	// panning event listeners
+	const canvasObj = document.getElementById('app-canvas');
+	canvasObj.addEventListener('mousedown', () => {
+		viewport.isPanning = true;
+	});
+	canvasObj.addEventListener('mouseup', () => {
+		viewport.prevMousePos = null;
+		
+		viewport.mouseDisplacement = {
+			x: 0,
+			y: 0,
+		};
+		viewport.isPanning = false;
+	});
+	canvasObj.addEventListener('mousemove', (e) => {
+		if (viewport.isPanning) {
+			const newPosition = {
+				x: e.offsetX,
+				y: e.offsetY,
+			}
+			viewport.prevMousePos ??= newPosition;
+			const delta = {
+				x: newPosition.x - viewport.prevMousePos.x,
+				y: newPosition.y - viewport.prevMousePos.y,
+			}
+			viewport.prevMousePos = newPosition;
+			viewport.camera.x += delta.x;
+			viewport.camera.y += delta.y;
+		}	
+		window.dispatchEvent(viewportChange);
+	});
+
+	canvasObj.addEventListener('wheel', (e) => {
+		const oldScale = viewport.zoomTransform.scale;
+		const newScale = oldScale + 0.01*e.deltaY;
+		const ratio =  newScale / oldScale;
+		viewport.zoomTransform.scale = newScale;
+		const oldTranslation = viewport.zoomTransform.translation;
+		viewport.zoomTransform.translation.x = e.offsetX - ratio * (e.offsetX - oldTranslation.x);
+		viewport.zoomTransform.translation.y = e.offsetY - ratio * (e.offsetY - oldTranslation.y);
+		// viewport.zoomTransform.translation.x = e.offsetX*(1 - viewport.zoomTransform.scale)
+		// viewport.zoomTransform.translation.y = e.offsetY*(1 - viewport.zoomTransform.scale)
+		window.dispatchEvent(viewportChange);
+	});
 
 	const dpr = Math.max(window.devicePixelRatio || 1, 1);
 	const mq = window.matchMedia(`(resolution: ${dpr}dppx)`);
