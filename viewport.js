@@ -99,17 +99,29 @@ export const initResize = () => {
 
 	canvasObj.addEventListener('wheel', (e) => {
 		const oldScale = viewport.zoomTransform.scale;
-		const newScale = oldScale + 0.01*e.deltaY;
-		const ratio =  newScale / oldScale;
+		const newScale = Math.max(oldScale + 0.01 * e.deltaY, 0.1);
+		const ratio = newScale / oldScale;
+		const oldOffset = {
+			x: viewport.camera.x + viewport.zoomTransform.translation.x,
+			y: viewport.camera.y + viewport.zoomTransform.translation.y,
+		};
+		
+		const newOffset = {
+			x: e.offsetX - ratio * (e.offsetX - oldOffset.x),
+			y: e.offsetY - ratio * (e.offsetY - oldOffset.y),
+		};
+		
+		if (newScale == oldScale) return;
+
 		viewport.zoomTransform.scale = newScale;
-		const oldTranslation = viewport.zoomTransform.translation;
-		viewport.zoomTransform.translation.x = e.offsetX - ratio * (e.offsetX - oldTranslation.x);
-		viewport.zoomTransform.translation.y = e.offsetY - ratio * (e.offsetY - oldTranslation.y);
-		// viewport.zoomTransform.translation.x = e.offsetX*(1 - viewport.zoomTransform.scale)
-		// viewport.zoomTransform.translation.y = e.offsetY*(1 - viewport.zoomTransform.scale)
+		
+		viewport.zoomTransform.translation.x =
+		newOffset.x - viewport.camera.x;
+		viewport.zoomTransform.translation.y =
+		newOffset.y - viewport.camera.y;
 		window.dispatchEvent(viewportChange);
 	});
-
+	
 	const dpr = Math.max(window.devicePixelRatio || 1, 1);
 	const mq = window.matchMedia(`(resolution: ${dpr}dppx)`);
 	mq.addEventListener('change', scheduleResize);
