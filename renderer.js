@@ -1,4 +1,5 @@
 import { viewport } from '/viewport.js';
+import { assets } from './assetLoader.js';
 
 export const renderer = {
     worldUnit: 100,
@@ -14,17 +15,17 @@ export const renderer = {
                 + viewport.camera.y + viewport.zoomTransform.translation.y
             ),
         }
-        console.log(newCoords);
         return newCoords;
     }, 
 
     drawVertex(vertex) {
         const { x, y } = this.worldToScreen(vertex.pos);
         const ctx = viewport.canvasContext;
-        const sideLength = 50 * viewport.zoomTransform.scale;
-        ctx.beginPath();
-        ctx.rect(x - sideLength / 2, y - sideLength / 2, sideLength, sideLength);
-        ctx.fill();
+        ctx.drawImage(assets[vertex.type].image, x, y);
+        // const sideLength = 50 * viewport.zoomTransform.scale;
+        // ctx.beginPath();
+        // ctx.rect(x - sideLength / 2, y - sideLength / 2, sideLength, sideLength);
+        // ctx.fill();
     },
 
     drawEdge(vertex1, vertex2) {

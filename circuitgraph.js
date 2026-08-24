@@ -8,7 +8,7 @@ export const circuitGraph = {
     addVertex(pos) {
         this.vertices.push({
             pos: pos,
-            type: "plain",
+            type: "nand",
         });
     },
 }

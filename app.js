@@ -1,8 +1,10 @@
 import { viewport, initResize } from './viewport.js';
 import { circuitGraph } from './circuitgraph.js';
 import { renderer } from './renderer.js';
-    
-initResize();
+import { init } from './init.js';
+
+await init(); // temporary, to avoid rendering before init
+
 viewport.resizeNow();
 
 let vertex1 = {
