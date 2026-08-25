@@ -21,7 +21,13 @@ export const renderer = {
     drawVertex(vertex) {
         const { x, y } = this.worldToScreen(vertex.pos);
         const ctx = viewport.canvasContext;
-        ctx.drawImage(assets[vertex.type].image, x, y);
+        ctx.drawImage(
+            assets[vertex.type].image, 
+            x, 
+            y, 
+            assets[vertex.type].image.naturalWidth * viewport.zoomTransform.scale, 
+            assets[vertex.type].image.naturalHeight * viewport.zoomTransform.scale
+        );
         // const sideLength = 50 * viewport.zoomTransform.scale;
         // ctx.beginPath();
         // ctx.rect(x - sideLength / 2, y - sideLength / 2, sideLength, sideLength);

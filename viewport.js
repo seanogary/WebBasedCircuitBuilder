@@ -93,8 +93,8 @@ export const initResize = () => {
 			viewport.prevMousePos = newPosition;
 			viewport.camera.x += delta.x;
 			viewport.camera.y += delta.y;
+			window.dispatchEvent(viewportChange);
 		}	
-		window.dispatchEvent(viewportChange);
 	});
 
 	canvasObj.addEventListener('wheel', (e) => {
