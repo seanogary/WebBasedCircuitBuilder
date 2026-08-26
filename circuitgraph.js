@@ -20,16 +20,15 @@ export const circuitGraph = {
 
     },
 
-    addVertex(pos, connectionObject = {}) {
+    addVertex(pos, connectionObject = {left: null, right: null, output: null}) {
         this.vertices.push({
             id: crypto.randomUUID(),
             pos: pos,
             type: "nand",
-            terminals: {
-                left: null,
-                right: null,
-                output: null,
-            }
+            terminals: connectionObject 
         });
     },
+    
+    autoLayout() {},
+
 }
